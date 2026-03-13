@@ -1,0 +1,20 @@
+#!/bin/bash
+
+command=$1
+test_set=$2
+
+for stem in $(cat "$test_set"); do
+    $command < "$stem.in" > tmp_output
+
+    if diff tmp_output "$stem.out" > /dev/null; then
+        echo "Test $stem passed"
+    else
+        echo "Test $stem failed"
+        echo "Expected output:"
+        cat "$stem.out"
+        echo "Actual output:"
+        cat tmp_output
+    fi
+
+    rm -f tmp_output
+done

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <test_set_filepath>" >&2
+    exit 1
+fi
+
+TEST_SET=$1
+
+for stem in $(cat "$TEST_SET"); do
+    echo "Description for test case $stem:"
+
+    if [ -f "$stem.desc" ]; then
+        cat "$stem.desc" 
+    else
+        echo "$stem: No test description"
+    fi
+done
