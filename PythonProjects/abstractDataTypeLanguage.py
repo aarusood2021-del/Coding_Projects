@@ -1,13 +1,10 @@
 from cmput274 import *
 '''
-CMPUT 274 - Introductory Numerical Mathematics and Computing
+CMPUT 274
 University of Alberta
 
 A comprehensive utility module providing testing frameworks and functional data structures
 for use in CMPUT 274 coursework.
-
-DISCLAIMER: This module contains advanced programming concepts for educational purposes.
-Students may ONLY use concepts that have been explicitly covered in class lectures.
 
 ===============================================================================
 TESTING FRAMEWORK
