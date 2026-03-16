@@ -1,7 +1,6 @@
 import functools
 import re
 
-# FIX 1: Move Animal/Bird ABOVE Zoo so the 'isinstance' check works
 class Animal(): 
     def __init__(self):
         self._number_of_hands = 0
@@ -36,7 +35,6 @@ class Bird():
     def look(self):
        return f"Number of wings: {self._number_of_wings}, Number of legs: {self._number_of_legs}"
 
-# FIX 2: Define Zoo last and use 'self' instead of 'global'
 class zoo():
     def __init__(self):
         self.list_of_animals = []
@@ -59,7 +57,6 @@ class zoo():
             raise TypeError("Not an animal or bird")
 
     def find_tiger(self):
-        # FIX 3: Check types directly. Regex on object strings won't work.
         for a in self.list_of_animals:
             if isinstance(a, Tiger):
                 print("\n" + a.look())
@@ -69,7 +66,6 @@ class zoo():
     def looking(self):
         creature_list = self.list_of_animals + self.list_of_birds
         if not creature_list: return
-        # Using your reduce logic
         prod = functools.reduce(lambda acc, ele: acc + "\n\n" + ele.look(), creature_list, "")
         print(prod.strip())
 
