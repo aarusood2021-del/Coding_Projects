@@ -6,7 +6,7 @@ from os.path import exists
 
 def main():
     datum = loaddatum('horizons_results')
-    datum = locate(datum) # Perihelia
+    datum = location(datum) # Perihelia
     datum = select(datum,50,('Jan','Feb','Mar'))
     datum = refine(datum,'horizons_results')
     makeplot(datum,'horizons_results')
@@ -15,11 +15,11 @@ def main():
 # This function analyzes the coordinates given in the file and determines the
 # coordinates using the dot function. A for loop is run through dist and is appended
 # to a new list, datum2 if it fulfills the condition from datum1 to datum2 and is returned.
-def locate(datum1):
+def location(datum1):
     dist = [] # Vector lengths
     for datum in datum1:
-        coord = np.array(datum['coord'])
-        dot = np.dot(coord,coord)
+        coordinates = np.array(datum['coordinates'])
+        dot = np.dot(coordinates,coordinates)
         dist.append(np.sqrt(dot))
     datum2 = []
     for k in range(1,len(dist)-1):
@@ -41,18 +41,18 @@ def loaddatum(filename):
             if line.rstrip() == "$$SOE":
                 noSOE = False
         elif line.rstrip() != "$$EOE":
-            datum = str2dict(line)
+            datum = stringtoDictionary(line)
             datum.append(datum)
         else:
             break # for
     return datum
 
 # This function creates a dictionary by splitting the file into individual words. 
-# Through indexing each component of the line is associated with a key, which are numdate, strdate, and coord.
-def str2dict(line):
+# Through indexing each component of the line is associated with a key, which are numdate, strdate, and coordinates.
+def stringtoDictionary(line):
     record=line.split(',')
     dic = {'numdate':float(record[0]),'strdate':record[1][6:17],
-    'coord':(float(record[2]),float(record[3]),float(record[4]))}
+    'coordinates':(float(record[2]),float(record[3]),float(record[4]))}
     return dic
 
 # This function determines the year in integer multiples of ystep,and months and appends them into a new list
@@ -74,9 +74,9 @@ def precess(datum):
     numdate = []
     strdate = []
     arcsec = []
-    v = np.array(datum[0]['coord'])# Reference (3D)
+    v = np.array(datum[0]['coordinates'])# Reference (3D)
     for datum in datum:
-        u = np.array(datum['coord']) # Perihelion (3D)
+        u = np.array(datum['coordinates']) # Perihelion (3D)
         ratio = np.dot(u,v)/np.sqrt(np.dot(u,u)*np.dot(v,v))
         if np.abs(ratio) <= 1:
             angle = 3600*np.degrees(np.arccos(ratio))
@@ -95,7 +95,7 @@ def refine(datum,filename):
         file_exists = exists(filename+'_'+file_name+'.txt')
         if file_exists:
             test = loaddatum(filename+'_'+file_name)
-            perihelia=locate(test)
+            perihelia=location(test)
             perihelia=perihelia[0]
             refine_datum.append(perihelia)
     return refine_datum        
@@ -105,10 +105,10 @@ def refine(datum,filename):
 # Through indexing, each datum variable is associated to a set with its values in excel.
 def savedatum(datum,filename):
     outfile=open("{}.csv".format(filename),'w')
-    outfile.write("{},{},{},{},{}\n".format("NUMDATE","STRDATE","XCOORD","YCOORD","ZCOORD"))
+    outfile.write("{},{},{},{},{}\n".format("NUMDATE","STRDATE","Xcoordinates","Ycoordinates","Zcoordinates"))
     for i in range(0,len(datum)):
         outfile.write("{},{},{},{},{}\n".format(datum[i]["numdate"],datum[i]["strdate"],
-        datum[i]["coord"][0],datum[i]["coord"][1],datum[i]["coord"][2]))
+        datum[i]["coordinates"][0],datum[i]["coordinates"][1],datum[i]["coordinates"][2]))
     outfile.close()  
            
 # This function creates a graph of arcsec as a function of the numdate, with the corresponding x-label, y-label, and title 
@@ -117,7 +117,7 @@ def makeplot(datum,filename):
     (numdate,strdate,arcsec) = precess(datum)
     plt.plot(numdate,arcsec,'bo')
     plt.xticks(numdate,strdate,rotation=45)
-    add2plot(numdate,arcsec)
+    addtoPlot(numdate,arcsec)
     plt.xlabel("Perihelion date")
     plt.ylabel("Precession (arcsec)")
     plt.savefig(filename+'.png',bbox_inches='tight')
@@ -127,7 +127,7 @@ def makeplot(datum,filename):
 # consisting of the slope of the trendline. The points for the bestfit trendline is calculated
 # through a for loop, where each x-value is multiplied by the slope plus the y-intercept
 #, which is then appended to a new list, which consits of the coordinates.
-def add2plot(numdate,actual):
+def addtoPlot(numdate,actual):
     r = stats.linregress(numdate,actual)
     bestfit = []
     for k in range(len(numdate)):
